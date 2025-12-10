@@ -9,9 +9,8 @@ const ProductFormPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  // Estado para el archivo seleccionado (NO para la URL)
+
   const [selectedFile, setSelectedFile] = useState(null);
-  // Estado para bloquear el botón mientras sube la foto
   const [isUploading, setIsUploading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -19,7 +18,7 @@ const ProductFormPage = () => {
     price: '',
     category: '',
     description: '',
-    image: '' // Aquí guardaremos la URL final o URL de preview (blob:)
+    image: '' 
   });
 
   useEffect(() => {
@@ -31,14 +30,13 @@ const ProductFormPage = () => {
     }
   }, [id, products]);
 
-  // Cleanup de URL.createObjectURL al desmontar (evita fugas)
+
   useEffect(() => {
     return () => {
       if (formData.image && formData.image.startsWith && formData.image.startsWith('blob:')) {
         try { URL.revokeObjectURL(formData.image); } catch (e) {}
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Manejador para textos normales
@@ -51,7 +49,6 @@ const ProductFormPage = () => {
   const handleFileChange = (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
-      // revoke previous blob URL si existía
       if (formData.image && formData.image.startsWith && formData.image.startsWith('blob:')) {
         try { URL.revokeObjectURL(formData.image); } catch (e) {}
       }
@@ -68,22 +65,19 @@ const ProductFormPage = () => {
     if (!formData.name.trim()) return toast.warning("El nombre es obligatorio");
     if (parseFloat(formData.price) <= 0 || Number.isNaN(parseFloat(formData.price))) return toast.warning("El precio debe ser mayor a 0");
     if ((formData.description || '').length < 10) return toast.warning("La descripción es muy corta");
-
-    // Validar que tenga imagen (ya sea una URL vieja o un archivo nuevo)
     if (!formData.image && !selectedFile) return toast.warning("Debes subir una imagen");
 
-    setIsUploading(true); // Bloqueamos botón
+    setIsUploading(true); 
     let finalImageUrl = formData.image;
 
     try {
-      // Si hay archivo nuevo, lo subimos a ImgBB
       if (selectedFile) {
         const toastId = toast.loading("Subiendo imagen a la nube... ☁️");
         finalImageUrl = await uploadImageToImgBB(selectedFile);
         toast.dismiss(toastId);
       }
 
-      // Preparamos el objeto final con la URL real de internet
+
       const productData = { ...formData, image: finalImageUrl };
 
       let success = false;
